@@ -28,10 +28,12 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 
 import com.owncloud.android.MainApp;
+import com.owncloud.android.datamodel.ArbitraryDataProvider;
 import com.owncloud.android.lib.common.accounts.AccountTypeUtils;
 import com.owncloud.android.lib.common.accounts.AccountUtils.Constants;
 import com.owncloud.android.lib.common.utils.Log_OC;
 import com.owncloud.android.lib.resources.status.OwnCloudVersion;
+import com.owncloud.android.ui.activity.ManageAccountsActivity;
 
 import java.util.Locale;
 
@@ -60,10 +62,10 @@ public class AccountUtils {
         Account[] ocAccounts = getAccounts(context);
         Account defaultAccount = null;
 
-        SharedPreferences appPreferences = PreferenceManager
-                .getDefaultSharedPreferences(context);
-        String accountName = appPreferences
-                .getString("select_oc_account", null);
+        ArbitraryDataProvider arbitraryDataProvider = new ArbitraryDataProvider(context.getContentResolver());
+
+        SharedPreferences appPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String accountName = appPreferences.getString("select_oc_account", null);
 
         // account validation: the saved account MUST be in the list of ownCloud Accounts known by the AccountManager
         if (accountName != null) {
@@ -74,10 +76,18 @@ public class AccountUtils {
                 }
             }
         }
-        
-        if (defaultAccount == null && ocAccounts.length != 0) {
-            // take first account as fallback
-            defaultAccount = ocAccounts[0];
+
+        if (defaultAccount == null && ocAccounts.length > 0) {
+            // take first which is not pending for removal account as fallback
+            for (Account account: ocAccounts) {
+                boolean pendingForRemoval = arbitraryDataProvider.getBooleanValue(account,
+                        ManageAccountsActivity.PENDING_FOR_REMOVAL);
+
+                if (!pendingForRemoval) {
+                    defaultAccount = account;
+                    break;
+                }
+            }
         }
 
         return defaultAccount;
@@ -152,10 +162,9 @@ public class AccountUtils {
             for (Account account : getAccounts(context)) {
                 found = (account.name.equals(accountName));
                 if (found) {
-                    SharedPreferences.Editor appPrefs = PreferenceManager
-                            .getDefaultSharedPreferences(context).edit();
+                    SharedPreferences.Editor appPrefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
                     appPrefs.putString("select_oc_account", accountName);
-    
+
                     appPrefs.apply();
                     result = true;
                     break;
@@ -163,6 +172,13 @@ public class AccountUtils {
             }
         }
         return result;
+    }
+
+    public static void resetOwnCloudAccount(Context context) {
+        SharedPreferences.Editor appPrefs = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        appPrefs.putString("select_oc_account", null);
+
+        appPrefs.apply();
     }
 
     /**

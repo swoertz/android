@@ -5,7 +5,7 @@
       height="80">](https://play.google.com/store/apps/details?id=com.nextcloud.client)
 [<img src="https://f-droid.org/badge/get-it-on.png"
       alt="Get it on F-Droid"
-      height="80">](https://f-droid.org/repository/browse/?fdfilter=com.nextcloud)
+      height="80">](https://f-droid.org/packages/com.nextcloud.client/)
 
 [![irc](https://img.shields.io/badge/IRC-%23nextcloud%20on%20freenode-orange.svg)](https://webchat.freenode.net/?channels=nextcloud)
 [![irc](https://img.shields.io/badge/IRC-%23nextcloud--mobile%20on%20freenode-blue.svg)](https://webchat.freenode.net/?channels=nextcloud-mobile)
